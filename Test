@@ -1,0 +1,28 @@
+app = Flask(__name__)
+
+@app.route('/payment', methods=['POST'])
+def process_payment():
+    payment_method = request.form.get('payment_method')
+    amount = float(request.form.get('amount'))
+
+    if payment_method == 'mobile_money':
+        mobile_money_number = request.form.get('mobile_money_number')
+        # Implement mobile money payment logic here
+        return f"Payment of {amount} via mobile money ({mobile_money_number}) processed successfully."
+
+    elif payment_method == 'cash':
+        # Implement cash payment logic here
+        return f"Payment of {amount} in cash processed successfully."
+
+    elif payment_method == 'card':
+        card_number = request.form.get('card_number')
+        card_expiry = request.form.get('card_expiry')
+        card_cvv = request.form.get('card_cvv')
+        # Implement card payment logic here
+        return f"Payment of {amount} via card ({card_number}) processed successfully."
+
+    else:
+        return "Invalid payment method."
+
+if __name__ == '__main__':
+    app.run() 
