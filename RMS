@@ -1,0 +1,48 @@
+from flask import Flask, render_template, request
+import sqlite3
+
+app = Flask(__name__)
+
+# Database Setup
+conn = sqlite3.connect('revenue.db')
+cursor = conn.cursor()
+
+# Create revenue table if it doesn't exist
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS revenue (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        customer_name TEXT,
+        product_name TEXT,
+        amount REAL,
+        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+''')
+conn.commit()
+
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+
+@app.route('/revenue', methods=['GET', 'POST'])
+def revenue():
+    if request.method == 'POST':
+        customer_name = request.form['customer_name']
+        product_name = request.form['product_name']
+        amount = float(request.form['amount'])
+
+        # Insert revenue transaction into the database
+        cursor.execute('INSERT INTO revenue (customer_name, product_name, amount) VALUES (?, ?, ?)',
+                       (customer_name, product_name, amount))
+        conn.commit()
+
+    # Retrieve all revenue transactions from the database
+    cursor.execute('SELECT * FROM revenue')
+    transactions = cursor.fetchall()
+
+    return render_template('revenue.html', transactions=transactions)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
